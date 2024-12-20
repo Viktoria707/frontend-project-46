@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import gendiff from '../src/gendiffLogic.js';
 
 const program = new Command();
-gendiff(program);
+
+const version = '1.0.0';
+program
+    .version(version)
+    .description('Compares two configuration files and shows a difference.');
+
 program.parse(process.argv);
