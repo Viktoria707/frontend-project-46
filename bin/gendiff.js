@@ -3,10 +3,11 @@
 import { Command } from 'commander';
 import { parseJsonFile } from '../fileParser.js';
 import path from 'path';
+import genDiff from '../src/genDiff.js';
 
 const program = new Command();
-
 const version = '1.0.0';
+
 program
     .version(version)
     .description('Compares two configuration files and shows a difference.')
@@ -19,8 +20,8 @@ program.action((filepath1, filepath2) => {
     try {
         const data1 = parseJsonFile(absolutePath1);
         const data2 = parseJsonFile(absolutePath2);
-        console.log('Data from file1:', data1);
-        console.log('Data from file2:', data2);
+        const diff = genDiff(data1, data2);
+        console.log(diff);
     } catch (error) {
         console.error('Error reading files: ${error.message}');
     }
