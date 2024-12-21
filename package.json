@@ -23,6 +23,7 @@
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.17.0",
     "babel-jest": "^29.7.0",
+    "codeclimate-test-reporter": "^0.5.1",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-import": "^2.31.0",
@@ -31,5 +32,13 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^15.14.0",
     "jest": "^29.7.0"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov"
+    ]
   }
 }
