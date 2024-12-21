@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import path from 'path';
-import { parseJsonFile } from '../src/fileParser.js';
+import parseJsonFile from '../src/fileParser.js';
 import genDiff from '../src/genDiff.js';
 
 const program = new Command();
@@ -23,7 +23,7 @@ program.action((filepath1, filepath2) => {
     const diff = genDiff(data1, data2);
     console.log(diff);
   } catch (error) {
-    console.error('Error reading files: ${error.message}');
+    console.error(`Error reading files: ${error.message}`);
   }
 });
 
