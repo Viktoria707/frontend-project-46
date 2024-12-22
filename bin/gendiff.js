@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import path from 'path';
-import parseJsonFile from '../src/fileParser.js';
+import parseFile from '../src/fileParser.js';
 import genDiff from '../src/genDiff.js';
 
 const program = new Command();
@@ -15,11 +15,11 @@ program
   .option('-f, --format [type]', 'output format');
 
 program.action((filepath1, filepath2) => {
-  const absolutePath1 = path.resolve(filepath1);
-  const absolutePath2 = path.resolve(filepath2);
+  const absolutePath1 = path.resolve(process.cwd(), filepath1);
+  const absolutePath2 = path.resolve(process.cwd(), filepath2);
   try {
-    const data1 = parseJsonFile(absolutePath1);
-    const data2 = parseJsonFile(absolutePath2);
+    const data1 = parseFile(absolutePath1);
+    const data2 = parseFile(absolutePath2);
     const diff = genDiff(data1, data2);
     console.log(diff);
   } catch (error) {

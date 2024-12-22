@@ -16,7 +16,7 @@ const genDiff = (data1, data2) => {
         `+ ${key}: ${data2[key]}`,
       ];
     }
-    return `${key}: ${data1[key]}`;
+    return `  ${key}: ${data1[key]}`;
   });
 
   const result = differences.flat().filter(Boolean);

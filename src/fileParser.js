@@ -1,8 +1,17 @@
 import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
 
-const parseJsonFile = (filepath) => {
-  const data = fs.readFileSync(filepath, 'utf-8');
-  return JSON.parse(data);
+const parseFile = (filepath) => {
+  const extname = path.extname(filepath);
+  const fileContent = fs.readFileSync(filepath, 'utf-8');
+  if (extname === '.json') {
+    return JSON.parse(fileContent);
+  }
+  if (extname === '.yml' || extname === '.yaml') {
+    return yaml.load(fileContent);
+  }
+  throw new Error(`Unsupported file type: ${extname}`);
 };
 
-export default parseJsonFile;
+export default parseFile;

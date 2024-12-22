@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import yaml from 'js-yaml';
 import genDiff from '../src/genDiff.js';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
@@ -13,13 +14,28 @@ describe('genDiff', () => {
 
     const expectedOutput = `{
  - follow: false
- host: hexlet.io
+   host: hexlet.io
  - proxy: 123.234.53.22
  - timeout: 50
  + timeout: 20
  + verbose: true
 }`;
 
+    const result = genDiff(data1, data2);
+    expect(result).toBe(expectedOutput);
+  });
+
+  test('should return correct diff for flat YAML objects', () => {
+    const data1 = yaml.load(fs.readFileSync(getFixturePath('file1.yml'), 'utf-8'));
+    const data2 = yaml.load(fs.readFileSync(getFixturePath('file2.yml'), 'utf-8'));
+    const expectedOutput = `{
+ - follow: false
+   host: hexlet.io
+ - proxy: 123.234.53.22
+ - timeout: 50
+ + timeout: 20
+ + verbose: true
+}`;
     const result = genDiff(data1, data2);
     expect(result).toBe(expectedOutput);
   });
@@ -36,8 +52,8 @@ describe('genDiff', () => {
     };
 
     const expectedOutput = `{
- host: hexlet.io
- timeout: 50
+   host: hexlet.io
+   timeout: 50
 }`;
 
     const result = genDiff(data1, data2);
