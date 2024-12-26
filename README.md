@@ -12,3 +12,6 @@ https://asciinema.org/a/qhcQWmkaDu8kNMDjWvd2Ooh1k
 
 Сравнение плоских файлов (yml)
 https://asciinema.org/a/1fwLbTvk4SERVKeBOkCxb19JB
+
+Рекурсивное сравнение
+https://asciinema.org/a/03SAvQPcSAzCuujFeGIjQA3PC
