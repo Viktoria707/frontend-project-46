@@ -1,39 +1,51 @@
-import _ from 'lodash';
+const INDENT_SIZE = 4;
+const SYMBOLS = {
+  unchanged: ' ',
+  added: '+',
+  deleted: '-',
+};
 
-const stringify = (value, depth) => {
-  if (!_.isObject(value) || value === null) {
-    return String(value);
+const indent = (depth) => ' '.repeat(INDENT_SIZE * depth);
+const formatValue = (value, depth) => {
+  if (typeof value !== 'object' || value === null) {
+    return value;
   }
 
-  const indent = ' '.repeat(depth * 2 + 2);
-  const lines = Object.entries(value).map(([key, val]) => `${indent}${key}: ${stringify(val, depth + 1)}`);
+  const formatObject = (obj) => {
+    const keys = Object.keys(obj);
+    return keys
+      .map((key) => `${indent(depth + 2)}${key}: ${formatValue(obj[key], depth + 2)}`)
+      .join('\n');
+  };
 
-  return `{\n${lines.join('\n')}\n${' '.repeat(depth * 4)}}`;
+  return `{\n${formatObject(value)}\n${indent(depth + 1)}}`;
 };
 
-const formatStylish = (differences, depth = 1) => {
-  const lines = differences.map(({
-    key, value, type, oldValue, newValue, children,
-  }) => {
-    const indent = ' '.repeat(depth * 4);
-
-    switch (type) {
-      case 'added':
-        return `${indent}+ ${key}: ${stringify(value, depth)}`;
-      case 'removed':
-        return `${indent}- ${key}: ${stringify(value, depth)}`;
-      case 'changed':
-        return `${indent}- ${key}: ${stringify(oldValue, depth)}\n${indent}+ ${key}: ${stringify(newValue, depth)}`;
-      case 'nested':
-        return `${indent}  ${key}: ${formatStylish(children, depth + 1)}`;
-      case 'unchanged':
-        return `${indent}  ${key}: ${stringify(value, depth)}`;
-      default:
-        break;
-    }
-  });
-
-  return `{\n${lines.join('\n')}\n${' '.repeat((depth - 1) * 4)}}`;
+const formatNode = (node, depth) => {
+  const { key, type, valueBefore, valueAfter, children } = node;
+  const indentStr = indent(depth);
+  switch (type) {
+    case 'unchanged':
+      return `${indentStr}${SYMBOLS[type]} ${key}: ${formatValue(valueBefore, depth)}`;
+    case 'added':
+      return `${indentStr}${SYMBOLS[type]} ${key}: ${formatValue(valueAfter, depth)}`;
+    case 'deleted':
+      return `${indentStr}${SYMBOLS[type]} ${key}: ${formatValue(valueBefore, depth)}`;
+    case 'changed':
+      return [
+        `${indentStr}${SYMBOLS.deleted} ${key}: ${formatValue(valueBefore, depth)}`,
+        `${indentStr}${SYMBOLS.added} ${key}: ${formatValue(valueAfter, depth)}`,
+      ];
+    case 'nested':
+      return `${indentStr}  ${key}: {\n${formatDiffTree(children, depth + 1)}\n${indentStr}  }`;
+    default:
+      throw new Error(`Unknown node type: '${type}'!`);
+  }
 };
 
-export default formatStylish;
+const formatDiffTree = (diffTree, depth = 0) => {
+  const lines = diffTree.map((node) => formatNode(node, depth)).flat(depth);
+  return `${lines.join('\n')}${indent(depth)}`;
+};
+
+export default formatDiffTree;
