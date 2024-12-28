@@ -20,7 +20,7 @@ const formatPlain = (diffTree) => {
       case 'nested':
         return iter(children, fullKey);
       case 'unchanged':
-        return []; // Не выводим неизмененные свойства
+        return [];
       default:
         throw new Error(`Unknown type: ${type}`);
     }

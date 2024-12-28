@@ -1,9 +1,11 @@
 import formatPlain from './plan.js';
-import formatDiffTree from './stylish.js';
+import formatStylish from './stylish.js';
+import formatJson from './json.js';
 
 const formatters = {
   plain: formatPlain,
-  stylish: formatDiffTree,
+  stylish: formatStylish,
+  json: formatJson,
 };
 
 export default (formatName) => {

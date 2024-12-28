@@ -37,15 +37,15 @@ const formatNode = (node, depth) => {
         `${indentStr}${SYMBOLS.added} ${key}: ${formatValue(valueAfter, depth)}`,
       ];
     case 'nested':
-      return `${indentStr}  ${key}: {\n${formatDiffTree(children, depth + 1)}\n${indentStr}  }`;
+      return `${indentStr}  ${key}: {\n${formatStylish(children, depth + 1)}\n${indentStr}  }`;
     default:
       throw new Error(`Unknown node type: '${type}'!`);
   }
 };
 
-const formatDiffTree = (diffTree, depth = 0) => {
+const formatStylish = (diffTree, depth = 0) => {
   const lines = diffTree.map((node) => formatNode(node, depth)).flat(depth);
   return `${lines.join('\n')}${indent(depth)}`;
 };
 
-export default formatDiffTree;
+export default formatStylish;
