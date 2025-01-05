@@ -43,8 +43,7 @@ jobs:
       #   # Add Code Climate secret key
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-          JOCOCO_SOURCE_PATH: /app/src/main/java
         with:
           coverageCommand: make test-coverage
-          coverageLocations: ${{github.workspace}}/app/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
+          debug: true
           
