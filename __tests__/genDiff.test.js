@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import genDiff from '../src/genDiff.js';
+import getDifferences from '../src/genDifference.js';
 import formatStylish from '../src/formatters/stylish.js';
 import formatPlain from '../src/formatters/plan.js';
 import formatJson from '../src/formatters/json.js';
@@ -15,99 +15,103 @@ describe('genDiff', () => {
     const data1 = JSON.parse(fs.readFileSync(getFixturePath('file1.json'), 'utf-8'));
     const data2 = JSON.parse(fs.readFileSync(getFixturePath('file2.json'), 'utf-8'));
 
-    const expectedOutput = `  common: {
-    + follow: false
-      setting1: Value 1
-    - setting2: 200
-    - setting3: true
-    + setting3: null
-    + setting4: blah blah
-    + setting5: {
+    const expectedOutput = `{
+    common: {
+      + follow: false
+        setting1: Value 1
+      - setting2: 200
+      - setting3: true
+      + setting3: null
+      + setting4: blah blah
+      + setting5: {
             key5: value5
         }
-      setting6: {
-          doge: {
-            - wow: 
-            + wow: so much            
-          }
-          key: value
-        + ops: vops        
-      }    
-  }
-  group1: {
-    - baz: bas
-    + baz: bars
-      foo: bar
-    - nest: {
+        setting6: {
+            doge: {
+              - wow: 
+              + wow: so much
+            }
+            key: value
+          + ops: vops
+        }
+    }
+    group1: {
+      - baz: bas
+      + baz: bars
+        foo: bar
+      - nest: {
             key: value
         }
-    + nest: str    
-  }
-- group2: {
+      + nest: str
+    }
+  - group2: {
         abc: 12345
         deep: {
-                id: 45
-            }
+            id: 45
+        }
     }
-+ group3: {
+  + group3: {
         deep: {
-                id: {
-                        number: 45
-                    }
+            id: {
+                number: 45
             }
+        }
         fee: 100500
-    }`;
-    const result = formatStylish(genDiff(data1, data2));
+    }
+}`;
+    const result = formatStylish(getDifferences(data1, data2));
     expect(result).toBe(expectedOutput);
   });
 
   test('should return correct diff for nested YAML objects', () => {
     const data1 = yaml.load(fs.readFileSync(getFixturePath('file1.yml'), 'utf-8'));
     const data2 = yaml.load(fs.readFileSync(getFixturePath('file2.yml'), 'utf-8'));
-    const expectedOutput = `  common: {
-    + follow: false
-      setting1: Value 1
-    - setting2: 200
-    - setting3: true
-    + setting3: null
-    + setting4: blah blah
-    + setting5: {
+    const expectedOutput = `{
+    common: {
+      + follow: false
+        setting1: Value 1
+      - setting2: 200
+      - setting3: true
+      + setting3: null
+      + setting4: blah blah
+      + setting5: {
             key5: value5
         }
-      setting6: {
-          doge: {
-            - wow: 
-            + wow: so much            
-          }
-          key: value
-        + ops: vops        
-      }    
-  }
-  group1: {
-    - baz: bas
-    + baz: bars
-      foo: bar
-    - nest: {
+        setting6: {
+            doge: {
+              - wow: 
+              + wow: so much
+            }
+            key: value
+          + ops: vops
+        }
+    }
+    group1: {
+      - baz: bas
+      + baz: bars
+        foo: bar
+      - nest: {
             key: value
         }
-    + nest: str    
-  }
-- group2: {
+      + nest: str
+    }
+  - group2: {
         abc: 12345
         deep: {
-                id: 45
-            }
+            id: 45
+        }
     }
-+ group3: {
+  + group3: {
         deep: {
-                id: {
-                        number: 45
-                    }
+            id: {
+                number: 45
             }
+        }
         fee: 100500
-    }`;
+    }
+}`;
 
-    const result = formatStylish(genDiff(data1, data2));
+    const result = formatStylish(getDifferences(data1, data2));
     expect(result).toBe(expectedOutput);
   });
 
@@ -126,7 +130,7 @@ Property 'group1.nest' was updated. From [complex value] to 'str'
 Property 'group2' was removed
 Property 'group3' was added with value: [complex value]`;
 
-    const result = formatPlain(genDiff(data1, data2));
+    const result = formatPlain(getDifferences(data1, data2));
     expect(result).toBe(expectedOutput);
   });
 
@@ -146,7 +150,7 @@ Property 'group1.nest' was updated. From [complex value] to 'str'
 Property 'group2' was removed
 Property 'group3' was added with value: [complex value]`;
 
-    const result = formatPlain(genDiff(data1, data2));
+    const result = formatPlain(getDifferences(data1, data2));
     expect(result).toBe(expectedOutput);
   });
 
@@ -157,120 +161,120 @@ Property 'group3' was added with value: [complex value]`;
     const expectedOutput = `[
   {
     "key": "common",
-    "type": "nested",
     "children": [
       {
         "key": "follow",
-        "type": "added",
-        "valueAfter": false
+        "value2": false,
+        "type": "added"
       },
       {
         "key": "setting1",
-        "type": "unchanged",
-        "valueBefore": "Value 1"
+        "value1": "Value 1",
+        "type": "unchanged"
       },
       {
         "key": "setting2",
-        "type": "deleted",
-        "valueBefore": 200
+        "value1": 200,
+        "type": "deleted"
       },
       {
         "key": "setting3",
-        "type": "changed",
-        "valueBefore": true,
-        "valueAfter": null
+        "value1": true,
+        "value2": null,
+        "type": "changed"
       },
       {
         "key": "setting4",
-        "type": "added",
-        "valueAfter": "blah blah"
+        "value2": "blah blah",
+        "type": "added"
       },
       {
         "key": "setting5",
-        "type": "added",
-        "valueAfter": {
+        "value2": {
           "key5": "value5"
-        }
+        },
+        "type": "added"
       },
       {
         "key": "setting6",
-        "type": "nested",
         "children": [
           {
             "key": "doge",
-            "type": "nested",
             "children": [
               {
                 "key": "wow",
-                "type": "changed",
-                "valueBefore": "",
-                "valueAfter": "so much"
+                "value1": "",
+                "value2": "so much",
+                "type": "changed"
               }
-            ]
+            ],
+            "type": "nested"
           },
           {
             "key": "key",
-            "type": "unchanged",
-            "valueBefore": "value"
+            "value1": "value",
+            "type": "unchanged"
           },
           {
             "key": "ops",
-            "type": "added",
-            "valueAfter": "vops"
+            "value2": "vops",
+            "type": "added"
           }
-        ]
+        ],
+        "type": "nested"
       }
-    ]
+    ],
+    "type": "nested"
   },
   {
     "key": "group1",
-    "type": "nested",
     "children": [
       {
         "key": "baz",
-        "type": "changed",
-        "valueBefore": "bas",
-        "valueAfter": "bars"
+        "value1": "bas",
+        "value2": "bars",
+        "type": "changed"
       },
       {
         "key": "foo",
-        "type": "unchanged",
-        "valueBefore": "bar"
+        "value1": "bar",
+        "type": "unchanged"
       },
       {
         "key": "nest",
-        "type": "changed",
-        "valueBefore": {
+        "value1": {
           "key": "value"
         },
-        "valueAfter": "str"
+        "value2": "str",
+        "type": "changed"
       }
-    ]
+    ],
+    "type": "nested"
   },
   {
     "key": "group2",
-    "type": "deleted",
-    "valueBefore": {
+    "value1": {
       "abc": 12345,
       "deep": {
         "id": 45
       }
-    }
+    },
+    "type": "deleted"
   },
   {
     "key": "group3",
-    "type": "added",
-    "valueAfter": {
+    "value2": {
       "deep": {
         "id": {
           "number": 45
         }
       },
       "fee": 100500
-    }
+    },
+    "type": "added"
   }
 ]`;
-    const result = formatJson(genDiff(data1, data2));
+    const result = formatJson(getDifferences(data1, data2));
     expect(result).toBe(expectedOutput);
   });
 });

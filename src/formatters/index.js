@@ -2,16 +2,17 @@ import formatPlain from './plan.js';
 import formatStylish from './stylish.js';
 import formatJson from './json.js';
 
-const formatters = {
-  plain: formatPlain,
-  stylish: formatStylish,
-  json: formatJson,
+const formatChoice = (data, format) => {
+  switch (format) {
+    case 'stylish':
+      return formatStylish(data);
+    case 'plain':
+      return formatPlain(data);
+    case 'json':
+      return formatJson(data);
+    default:
+      throw new Error(`Unknown formatter: '${format}'!`);
+  }
 };
 
-export default (formatName) => {
-  const formatter = formatters[formatName];
-  if (!formatter) {
-    throw new Error(`Unknown format: ${formatName}`);
-  }
-  return formatter;
-};
+export default formatChoice;

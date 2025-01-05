@@ -1,51 +1,50 @@
-const INDENT_SIZE = 4;
-const SYMBOLS = {
-  unchanged: ' ',
-  added: '+',
-  deleted: '-',
-};
+import _ from 'lodash';
 
-const indent = (depth) => ' '.repeat(INDENT_SIZE * depth);
-const formatValue = (value, depth) => {
-  if (typeof value !== 'object' || value === null) {
-    return value;
+const getIndent = (depth, replacer = ' ', spacesCount = 4) => replacer.repeat((depth + 1) * spacesCount);
+const getBracketIndent = (depth, replacer = ' ', spacesCount = 4) => replacer.repeat(depth * spacesCount);
+
+const getValue = (currentValue, depth) => {
+  if (!_.isObject(currentValue)) {
+    return `${currentValue}`;
   }
 
-  const formatObject = (obj) => {
-    const keys = Object.keys(obj);
-    return keys
-      .map((key) => `${indent(depth + 2)}${key}: ${formatValue(obj[key], depth + 2)}`)
-      .join('\n');
+  const currentIndent = getIndent(depth);
+  const bracketIndent = getBracketIndent(depth);
+  const lines = Object.entries(currentValue).map(([key, value]) => `${currentIndent}${key}: ${getValue(value, depth + 1)}`);
+
+  return ['{', ...lines, `${bracketIndent}}`].join('\n');
+};
+
+const formatStylish = (data) => {
+  const iter = (diff, depth) => {
+    const currentIndent = getIndent(depth).slice(0, -2);
+    const bracketIndent = getBracketIndent(depth);
+
+    const lines = diff.map((el) => {
+      const { type } = el;
+      switch (type) {
+        case 'added':
+          return `${currentIndent}+ ${el.key}: ${getValue(el.value2, depth + 1)}`;
+        case 'deleted':
+          return `${currentIndent}- ${el.key}: ${getValue(el.value1, depth + 1)}`;
+        case 'changed':
+          return [
+            `${currentIndent}- ${el.key}: ${getValue(el.value1, depth + 1)}`,
+            `${currentIndent}+ ${el.key}: ${getValue(el.value2, depth + 1)}`,
+          ].join('\n');
+        case 'unchanged':
+          return `${currentIndent}  ${el.key}: ${getValue(el.value1, depth + 1)}`;
+        case 'nested':
+          return `${currentIndent}  ${el.key}: ${iter(el.children, depth + 1)}`;
+        default:
+          throw new Error(`Unknown property type: '${type}'!`);
+      }
+    });
+
+    return ['{', ...lines, `${bracketIndent}}`].join('\n');
   };
 
-  return `{\n${formatObject(value)}\n${indent(depth + 1)}}`;
-};
-
-const formatNode = (node, depth) => {
-  const { key, type, valueBefore, valueAfter, children } = node;
-  const indentStr = indent(depth);
-  switch (type) {
-    case 'unchanged':
-      return `${indentStr}${SYMBOLS[type]} ${key}: ${formatValue(valueBefore, depth)}`;
-    case 'added':
-      return `${indentStr}${SYMBOLS[type]} ${key}: ${formatValue(valueAfter, depth)}`;
-    case 'deleted':
-      return `${indentStr}${SYMBOLS[type]} ${key}: ${formatValue(valueBefore, depth)}`;
-    case 'changed':
-      return [
-        `${indentStr}${SYMBOLS.deleted} ${key}: ${formatValue(valueBefore, depth)}`,
-        `${indentStr}${SYMBOLS.added} ${key}: ${formatValue(valueAfter, depth)}`,
-      ];
-    case 'nested':
-      return `${indentStr}  ${key}: {\n${formatStylish(children, depth + 1)}\n${indentStr}  }`;
-    default:
-      throw new Error(`Unknown node type: '${type}'!`);
-  }
-};
-
-const formatStylish = (diffTree, depth = 0) => {
-  const lines = diffTree.map((node) => formatNode(node, depth)).flat(depth);
-  return `${lines.join('\n')}${indent(depth)}`;
+  return iter(data, 0);
 };
 
 export default formatStylish;

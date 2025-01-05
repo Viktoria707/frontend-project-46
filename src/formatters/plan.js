@@ -1,32 +1,36 @@
-import _ from 'lodash';
-
-const stringify = (value) => {
-  if (_.isObject(value) && value !== null) {
+const inputValue = (value) => {
+  if (typeof value === 'object' && value !== null) {
     return '[complex value]';
   }
-  return typeof value === 'string' ? `'${value}'` : String(value);
+  if (typeof value === 'string') {
+    return `'${value}'`;
+  }
+  return `${value}`;
 };
 
-const formatPlain = (diffTree) => {
-  const iter = (tree, parentKey = '') => tree.flatMap(({ key, type, valueBefore, valueAfter, children }) => {
-    const fullKey = parentKey ? `${parentKey}.${key}` : key;
-    switch (type) {
-      case 'added':
-        return `Property '${fullKey}' was added with value: ${stringify(valueAfter)}`;
-      case 'deleted':
-        return `Property '${fullKey}' was removed`;
-      case 'changed':
-        return `Property '${fullKey}' was updated. From ${stringify(valueBefore)} to ${stringify(valueAfter)}`;
-      case 'nested':
-        return iter(children, fullKey);
-      case 'unchanged':
-        return [];
-      default:
-        throw new Error(`Unknown type: ${type}`);
-    }
-  }).join('\n');
-
-  return iter(diffTree);
+const formatPlain = (data) => {
+  const iter = (diff, keys) => {
+    const lines = diff
+      .filter(({ type }) => type !== 'unchanged')
+      .map((el) => {
+        const { type } = el;
+        const currentPath = [...keys, el.key].join('.');
+        switch (type) {
+          case 'added':
+            return `Property '${currentPath}' was added with value: ${inputValue(el.value2)}`;
+          case 'deleted':
+            return `Property '${currentPath}' was removed`;
+          case 'changed':
+            return `Property '${currentPath}' was updated. From ${inputValue(el.value1)} to ${inputValue(el.value2)}`;
+          case 'nested':
+            return iter(el.children, [...keys, el.key]);
+          default:
+            throw new Error(`Unknown property type: '${type}'!`);
+        }
+      });
+    return lines.join('\n');
+  };
+  return iter(data, []);
 };
 
 export default formatPlain;
