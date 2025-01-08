@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import path from 'path';
 import yaml from 'js-yaml';
 import getDifferences from '../src/genDifference.js';
@@ -6,7 +7,8 @@ import formatStylish from '../src/formatters/stylish.js';
 import formatPlain from '../src/formatters/plan.js';
 import formatJson from '../src/formatters/json.js';
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const getFixturePath = (filename) => path.join(__dirname, '../__fixtures__', filename);
 
