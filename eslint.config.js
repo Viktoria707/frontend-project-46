@@ -21,6 +21,9 @@ export default [
       globals: { 
         ...globals.node,
         ...globals.jest
+      },
+      env: {
+        jest: true
       }
     }
   },
