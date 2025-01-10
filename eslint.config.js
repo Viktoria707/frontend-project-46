@@ -11,21 +11,21 @@ const __dirname = path.dirname(__filename);
 const compat = new FlatCompat(
   {
     baseDirectory: __dirname,
-    recommendedConfig: pluginJs.configs.recommended 
-  }
+    recommendedConfig: pluginJs.configs.recommended,
+  },
 );
 
 export default [
-  { 
-    languageOptions: { 
-      globals: { 
+  {
+    languageOptions: {
+      globals: {
         ...globals.node,
-        ...globals.jest
+        ...globals.jest,
       },
       env: {
-        jest: true
-      }
-    }
+        jest: true,
+      },
+    },
   },
   ...compat.extends('airbnb'),
   {
@@ -40,8 +40,8 @@ export default [
           'jest/valid-expect': 'error',
           'jest/valid-expect-in-promise': 'warn',
           'jest/no-duplicate-hooks': 'error',
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  },
 ];
